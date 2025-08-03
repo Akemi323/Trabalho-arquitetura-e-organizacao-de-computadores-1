@@ -1,4 +1,8 @@
-#Isadora Dantas Bruchmam (ra140870), João Vitor Bidoia Ângelo(ra139617) e Letícia Akemi Nakahati Vieira (ra140535)
+#Alunos: 
+# Isadora Dantas Bruchmam (ra140870)
+# João Vitor Bidoia Ângelo(ra139617)
+# Letícia Akemi Nakahati Vieira (ra140535)
+
 from __future__ import annotations
 import os
 
@@ -197,8 +201,7 @@ class CPU:
                 self.registradores['PC'] = int(operandos[0], 16)
                 print(f'Realizado um JUMP+ para o endereco {self.registradores['PC']}')
                                         
-        elif operacao == 'ADD':
-            ''''''            
+        elif operacao == 'ADD':         
             if len(operandos) == 1:
                 registrador = 'AC'
                 endereco = int(operandos[0], 16)
@@ -213,19 +216,45 @@ class CPU:
             print(f'Resultado da subtração: {registrador}, Z = {self.registradores['Z']}, C = {self.registradores['C']}')
 
     def pausa_instrucao(self):
-        '''Função que para o ciclo e so volta com o enter'''
-        while True:
-            pausa = input('Digite enter para realizar 2 operações...')
-            instrucao = self.memoria.ler(self.registradores['PC'])
-
-            if instrucao == None or instrucao == 0:
-                break
-            
+        '''
+        Função que inicia e controla o ciclo da instrução principal, pausando a cada duas operações,
+        sendo necessário clicar em enter para continuar
+        '''
+        self.mostra_registradores()
+        simulacao = True
+        while simulacao:
+            input('Digite enter para realizar 2 operações...')
+           
             for i in range(2):
+                instrucao = self.memoria.ler(self.registradores['PC'])
+
+                if instrucao == None or instrucao == 0:
+                    simulacao = False
+                    break  # sera que precisa desse break?
+            
                 self.busca()
                 operacao, operandos_separados = self.decodificacao()
                 self.execucao(operacao, operandos_separados)
+                self.mostra_registradores()
+        if simulacao:
             print("Final das 2 primeiras operaçoes")
+
+    def mostra_registradores(self):
+        '''
+        Para cada instrução, printa os registradores utilizados
+        '''
+        print("Estado dos registradores:")
+        print(f'PC - {self.registradores['PC']}')
+        print(f'AC - {self.registradores['AC']}')
+        print(f'MAR - {self.registradores['MAR']}')
+        print(f'MBR - {self.registradores['MBR']}')
+        print(f'IR - {self.registradores['IR']}')
+        print(f'MQ - {self.registradores['MQ']}')
+        print(f'Z - {self.registradores['Z']}')
+        print(f'C - {self.registradores['C']}')
+        print(f'R - {self.registradores['R']}')
+        
+
 
 class ULA:
     '''
@@ -273,7 +302,6 @@ class ULA:
         Função que realiza a subtração de dois valores 
         Calcula o resultado e determina o status dos registradores Z e C
         Na subtração, o carry atua como "borrow flag"
-
 
         parâmetros:
         valor1 = Primeiro número da subtração (normalmente um registrador)
