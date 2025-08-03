@@ -7,48 +7,99 @@ MAX_VALOR_PALAVRA = 2 ** TAMANHO_PALAVRA_BITS
 
 
 class Memoria:
+    '''
+    Simula a memória principal do computador
+    Ela é implementada como uma lista(vetor) em que cada índice representa um endereço de memória. Sua responsabilidade se relaciona
+    com o armazenamento e recuperação de dados e instruções
+    '''
     def __init__(self, tamanho):
+        '''
+        Inicializa a memória
+
+        parâmetros:
+        tamanho = O número total de palavras que a memória armazena
+        memoria = lista inicializada com o tamanho da memória
+        '''
         self.tamanho = tamanho
         self.memoria = [0] * tamanho
 
     def escrever (self, endereco, dado):
-        '''Função que recebe um endereço e um dado, e vai armazenar esse dado no endereço recebido'''
+        '''
+        Função que recebe um endereço e um dado, e armazena/escreve esse dado no endereço recebido
+
+        parâmetros:
+        endereco = O índice da lista que o dado será armazenado 
+        dado = O valor que será armazenado, pode ser um inteiro ou uma string
+        '''
         self.memoria[endereco] = dado
     
     def ler (self, endereco):
-        '''Vai receber um endereço e vai retornar o dado que tá armazenado la
+        '''
+        Função que recebe um endereço e retorna o dado armazenado na posição
+
+        parâmetros:
+        endereco = O índice da lista de onde o dado será lido
+
+        o retorno é o dado que está armazenado na memória
+
         '''
         return self.memoria[endereco]
 
 class CPU:
+    '''
+    A unidade central de processamento (CPU) é o "cérebro" das operações
+
+    Essa classe possui a responsabilidade da coordenação de do gerenciamento do programa através do PC e utiliza os componentes
+    Memoria e ULA para buscar, decodificar e executar as instruções
+    '''
     def __init__(self, memoria, ula):
+        '''
+        Inicializa a CPU, conectando a mesma com a memória e a ULA
+        
+        Define também o conjunto dos registradores que serão utilizados na simulação, sendo eles
+        PC - contador; MAR - endereço de memória; MBR - buffer de memória; IR - instrução; AC - acumulador;
+        C - flag de carry out (1 houve carry, 2 não houve carry); Z - flag de resultado zero ( -1 resultado negativo,
+        0 resultado 0, 1 resultado positivo); MQ - multiplicador; R - resto da divisão
+        '''
+        self.Ula = ula
+        self.memoria = memoria
+        self.arquivo_operacao = inicializa() #open("readme.txt", 'r')
         self.registradores = {
             'PC': 0, 'MAR': 0, 'MBR': None, 'IR': None, 'IBR': None,
             'AC': 0, 'C': 0, 'Z': 0, 'MQ': 0, 'R': 0
         }
-        self.Ula = ula
-        self.memoria = memoria
-        self.arquivo_operacao = inicializa() #open("readme.txt", 'r')
 
     def busca(self):
-        ''''''
+        '''
+        Essa função simula a busca de um ciclo de instrução
+        MAR <- PC = O endereço da próxima instrução é colocado no MAR
+        MBR <- (memória) = O conteúdo da memória no endereço é lido para o MBR
+        PC <- PC + 1 = O PC aponta para a próxima instrução em sequência
+        IR <- MBR = A instrução é movida para o IR para ser decodificada
+        '''
+
         # PC vai pro MAR
         self.registradores['MAR'] = self.registradores['PC']
 
         # Leitura do dado na memória no endereço que o MAR aponta
         self.registradores['MBR'] = self.memoria.ler(self.registradores['MAR'])
 
-        # Vai pro IR
-        self.registradores['IR'] = self.registradores['MBR']
-
         # PC aponta pro próximo
         self.registradores['PC'] += 1
         
+        # Vai pro IR
+        self.registradores['IR'] = self.registradores['MBR']
+        
 
     def decodificacao(self) -> tuple:
-        '''Ela vai ler a instrução recebida e vai quebrar ela (fazendo um split) e interpretar'''
+        '''
+        Essa função simula a decodificação de um ciclo de instrução
+        Analisa a string presente no IR , separando a mesma em operação(como ['LOAD']) e operandos (como ['AC', '0X10']
 
-        partes = self.registradores['MBR'].split(maxsplit=1) # aqui eu to separando a operação dos operandos, tipo ['ADD'] e ['A, B']
+        Retorna uma tupla com essas duas listas separadas
+        '''
+
+        partes = self.registradores['IR'].split(maxsplit=1) # aqui eu to separando a operação dos operandos, tipo ['ADD'] e ['A, B']
         
         operacao = partes[0]
         operandos = partes[1]
@@ -58,8 +109,25 @@ class CPU:
         return operacao, operandos_separados #dá pra retornar uma tupla ou uma lista de lista, o que fizer mais sentido
 
     def execucao(self, operacao, operandos):
-        '''Na teoria seria um monte de if elif elif else pra cada operação que pode receber, tem algum jeito mais bonito de fazer isso?
-        LOAD, MUL - multiplica, STOR - armazena na memoria, SUB- subtrai, JUMP - pula '''
+        '''
+        Essa função simula a execução de um ciclo de instrução.
+        
+        Parâmetros:
+        operacao = String com o comando (como LOAD)
+        operandos = Uma lista com os parâmetros da operação (como MQ, M(0x101))
+
+        A partir dos parâmetros recebidos, realiza a operação correspondente, seja uma transferência de dados,
+        uma operação aritmética, lógica ou um desvio de fluxo
+
+        A CPU realiza uma série de operações, e as executadas nessa simulação são:
+        LOAD - carrega um valor da memória para um registrador (o padrão, caso não haja é o AC)
+        MULT - multiplica MQ por um valor na memória, salvando o resultado em AC e MQ
+        STOR - armazena o valor de um registrador na memória (o padrão, caso não haja é o AC)
+        SUB- subtrai um valor da memória de um registrador (o padrão, caso não haja é o AC) e atualiza as flags Z e C 
+        JUMP - desvia o fluxo do programa para outro endereço de memória
+        JUMP+ - desvia o fluxo somente se o resultado da última operação foi positivo ou zero
+        ADD - soma um valor da memória a um registrador (o padrão, caso não haja é o AC) e atualiza as flags Z e C
+        '''
 
         if operacao == 'LOAD':
             if len(operandos) == 1:
@@ -160,8 +228,30 @@ class CPU:
             print("Final das 2 primeiras operaçoes")
 
 class ULA:
+    '''
+    Representa a unidade lógica e aritmética (ULA) do simulador, responsável pela realização das operações de cálculo
+    Funciona como uma "calculadora" para a CPU: recebe os valores, executa a operação e retorna o resultado com as flags
+    Z e C
+
+    A ULA é um componente que não armazena nenhum valor permanente, tendo em vista que o controle é feito pela CPU
+    '''
+    def __init__(self):
+        '''
+        Como é um componente que não armazena valores, não tem elementos a serem inicializados
+        '''
 
     def soma(self, valor1, valor2):
+        '''
+        Função que realiza a soma de dois valores 
+        Calcula o resultado da adição e determina o status dos registradores Z e C. o Carry é ativado se houver overflow da
+        capacidade de 40 bits (computador IAS)
+
+        parâmetros:
+        valor1 = Primeiro número da adição (normalmente um registrador)
+        valor2 = Segundo número da adição (normalmente da memória)
+
+        ela retorna o resultado da operação(resultado_final), e as duas flags (flag_z e flag_c)
+        '''
         resultado_inicial = valor1 + valor2
         
         if resultado_inicial >= MAX_VALOR_PALAVRA:
@@ -178,7 +268,19 @@ class ULA:
         
         return resultado_final, flag_z, flag_c
 
-    def subtract(self, valor1, valor2):
+    def subtracao(self, valor1, valor2):
+        '''
+        Função que realiza a subtração de dois valores 
+        Calcula o resultado e determina o status dos registradores Z e C
+        Na subtração, o carry atua como "borrow flag"
+
+
+        parâmetros:
+        valor1 = Primeiro número da subtração (normalmente um registrador)
+        valor2 = Segundo número da subtração (normalmente da memória)
+
+        ela retorna o resultado da operação, e as duas flags (flag_z e flag_c)
+        '''
         resultado = valor1 - valor2
         
         if resultado < 0:
@@ -195,6 +297,9 @@ class ULA:
             
             
 def inicializa():
+    '''
+    Função responsável pela abertura do arquivo e retorno de duas listas: 
+    '''
     if os.path.exists('teste.txt'):
         with open('teste.txt', 'r') as arq_operacoes:
             lista_operacoes_memoria = arq_operacoes.readlines()
