@@ -1,4 +1,4 @@
-#Alunos: 
+# Alunos: 
 # Isadora Dantas Bruchmam (ra140870)
 # João Vitor Bidoia Ângelo(ra139617)
 # Letícia Akemi Nakahati Vieira (ra140535)
@@ -65,7 +65,7 @@ class CPU:
         C - flag de carry out (1 houve carry, 2 não houve carry); Z - flag de resultado zero ( -1 resultado negativo,
         0 resultado 0, 1 resultado positivo); MQ - multiplicador; R - resto da divisão
         '''
-        self.Ula = ula
+        self.ula = ula
         self.memoria = memoria
         self.arquivo_operacao = inicializa() #open("readme.txt", 'r')
         self.registradores = {
@@ -102,15 +102,24 @@ class CPU:
 
         Retorna uma tupla com essas duas listas separadas
         '''
+        instrucao = self.registradores['IR']
+        if not isinstance(instrucao, str):
+            return 'NOP', []
 
-        partes = self.registradores['IR'].split(maxsplit=1) # aqui eu to separando a operação dos operandos, tipo ['ADD'] e ['A, B']
-        
+        partes = instrucao.split(maxsplit=1)
+        operandos_separados = []
         operacao = partes[0]
-        operandos = partes[1]
-    
-        operandos_separados = operandos.split(',') #aqui eu separo os operandos pela virgula, tipo ['A', 'B']
 
-        return operacao, operandos_separados #dá pra retornar uma tupla ou uma lista de lista, o que fizer mais sentido
+        if len(partes) > 1:
+            operacao = partes[0]
+            operandos = partes[1]
+            operandos_separados = operandos.split(',')
+        operandos_limpos = []
+        for op in operandos_separados:
+            op_limpo = op.strip().replace('M', '').replace('(', '').replace(')', '')
+            operandos_limpos.append(op_limpo)
+
+        return operacao, operandos_limpos
 
     def execucao(self, operacao, operandos):
         '''
@@ -142,7 +151,7 @@ class CPU:
                 endereco = int(operandos[1],16)
                 
             self.registradores[registrador] = self.memoria.ler(endereco)
-            print(f'Registrador {registrador} atualizado com o valor {memoria} da memória no endereço {endereco}')
+            print(f'Registrador {registrador} atualizado com o valor {self.memoria.ler(endereco)} da memória no endereço {endereco}')
         elif operacao == 'MULT':
             #LOAD MQ, M(0x05)
             #MULT M(0x06)
@@ -182,8 +191,11 @@ class CPU:
             else: 
                 registrador = operandos[0]
                 endereco = int(operandos[1],16)
+
+            valor1 = int(self.registradores[registrador])
+            valor2 = self.memoria.ler(endereco)
         
-            resultado, flag_z, flag_c = self.ula.subtracao(registrador, endereco)
+            resultado, flag_z, flag_c = self.ula.subtracao(valor1, valor2)
             self.registradores[registrador] = resultado
             self.registradores['Z'] = flag_z
             self.registradores['C'] = flag_c
@@ -197,9 +209,11 @@ class CPU:
 
         elif operacao == 'JUMP+':
             #JUMP+ M(X)
-            if registrador['Z'] >= 0:
+            if self.registradores['Z'] >= 0:
                 self.registradores['PC'] = int(operandos[0], 16)
                 print(f'Realizado um JUMP+ para o endereco {self.registradores['PC']}')
+            else:
+                print(f"JUMP+: Condição Z>=0 NÃO atendida. Salto ignorado.")
                                         
         elif operacao == 'ADD':         
             if len(operandos) == 1:
@@ -208,8 +222,10 @@ class CPU:
             else: 
                 registrador = operandos[0]
                 endereco = int(operandos[1],16)
+            valor1 = int(self.registradores[registrador])
+            valor2 = self.memoria.ler(endereco)
         
-            resultado, flag_z, flag_c = self.ula.soma(registrador, endereco)
+            resultado, flag_z, flag_c = self.ula.soma(valor1, valor2)
             self.registradores[registrador] = resultado
             self.registradores['Z'] = flag_z
             self.registradores['C'] = flag_c
@@ -343,12 +359,36 @@ def inicializa():
                 else:
                     operacoes.append(op.strip('\n'))             
         print(f'Memorias: {memoria}\nOperacoes: {operacoes}') 
+        return memoria, operacoes
     #else:
     print("Erro")
 
       
 def main():
-      inicializa()
+    memoria_principal = Memoria(4096) #tem q ver o tamanho dela
+    ula = ULA()
+    processador = CPU(memoria_principal, ula)
+
+    memoria, operacoes = inicializa()
+
+    for i in memoria:
+        partes = i.split()
+        if len(partes) == 2:
+            valor_int = int(partes[0])
+            endereco_int = int(partes[1], 16)
+            memoria_principal.escrever(endereco_int, valor_int)
+    
+    endereco_inicio = 0x20
+    endereco_atual = endereco_inicio
+
+    for instrucao in operacoes:
+        memoria_principal.escrever(endereco_atual, instrucao)
+        endereco_atual +=1
+    
+    processador.registradores['PC'] = endereco_inicio
+    processador.pausa_instrucao()
+
+
 
 
 if __name__ == "__main__":
