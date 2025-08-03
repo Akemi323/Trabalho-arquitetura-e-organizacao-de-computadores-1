@@ -220,6 +220,7 @@ class CPU:
         Função que inicia e controla o ciclo da instrução principal, pausando a cada duas operações,
         sendo necessário clicar em enter para continuar
         '''
+        print('Estado inicial dos registradores')
         self.mostra_registradores()
         simulacao = True
         while simulacao:
@@ -235,6 +236,7 @@ class CPU:
                 self.busca()
                 operacao, operandos_separados = self.decodificacao()
                 self.execucao(operacao, operandos_separados)
+                print('Estado dos registradores:')
                 self.mostra_registradores()
         if simulacao:
             print("Final das 2 primeiras operaçoes")
@@ -243,7 +245,6 @@ class CPU:
         '''
         Para cada instrução, printa os registradores utilizados
         '''
-        print("Estado dos registradores:")
         print(f'PC - {self.registradores['PC']}')
         print(f'AC - {self.registradores['AC']}')
         print(f'MAR - {self.registradores['MAR']}')
