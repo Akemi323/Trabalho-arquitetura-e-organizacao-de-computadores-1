@@ -1,1 +1,10 @@
-
+LOAD MQ, M(0x101) // Carrega res em MQ
+MUL M(0x100) // Multiplica MQ por b
+LOAD MQ // Carrega resultado em AC
+STOR M(0x101) // Salva resultado em res
+LOAD M(0x103) // Carrega i em AC
+ADD M(0x104) // Incrementa AC
+STOR M(0x103) //Volta resultado em i novamente
+LOAD M(0x102) // Carrega pot em AC
+SUB M(0x103) // AC = AC – i
+JUMP+ M(Comeco) // Salta para Comeco se N - i >= 0
