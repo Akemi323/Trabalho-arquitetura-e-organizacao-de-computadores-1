@@ -1,9 +1,9 @@
-Projeto: Simulador de CPU Baseada em IAS
+###Projeto: Simulador de CPU Baseada em IAS
 
-Disciplina: ARQUITETURA E ORGANIZAÇÃO DE COMPUTADORES
-Curso: Bacharelado em Ciência da Computação
-Data de Entrega: 04/08/2025 
-Professor: Rodrigo Calvo 
+- Disciplina: ARQUITETURA E ORGANIZAÇÃO DE COMPUTADORES
+- Curso: Bacharelado em Ciência da Computação
+- Data de Entrega: 04/08/2025 
+- Professor: Rodrigo Calvo 
 
 ## 1. Autores
 
