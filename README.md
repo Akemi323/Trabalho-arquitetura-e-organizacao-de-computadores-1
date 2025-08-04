@@ -30,7 +30,7 @@ O simulador suporta um conjunto de instruções com múltiplos modos de endereç
 
 | Mnemônico | Sintaxe(s) Suportada(s) | Descrição |
 | :--- | :--- | :--- |
-| **LOAD** | `LOAD A, M(0x103)`<br>`LOAD M(0x103)` | Carrega um valor da memória para um registrador. |
+| **LOAD** | `LOAD A, M(0x103)`<br>`LOAD M(0x103)`<br>`LOAD A, M(B)`<br>`LOAD M(A)` | Carrega um valor da memória para um registrador. |
 | **STOR** | `STOR M(0x102), A`<br> `STOR M(0X03)` | Armazena o valor de um registrador em um endereço de memória. |
 | **ADD** | `ADD M(0x101)`<br>`ADD A, 0x101`<br>`ADD 0x101`<br>`ADD A, M(0x101)` | Soma um valor a um registrador e atualiza as flags `Z` e `C`. |
 | **SUB** | `SUB M(0x101)`<br>`SUB 0x101`<br>`SUB A, M(0x101)`<br>`SUB A, 0x101` | Subtrai um valor a um registrador  e atualiza as flags `Z` e `C`. |
