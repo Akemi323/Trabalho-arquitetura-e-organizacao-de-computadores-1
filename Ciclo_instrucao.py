@@ -9,7 +9,6 @@ import os
 TAMANHO_PALAVRA_BITS = 40
 MAX_VALOR_PALAVRA = 2 ** TAMANHO_PALAVRA_BITS 
 
-
 class Memoria:
     '''
     Simula a memória principal do computador
@@ -70,30 +69,21 @@ class CPU:
         self.arquivo_operacao = inicializa() #open("readme.txt", 'r')
         self.registradores = {
             'PC': 0, 'MAR': 0, 'MBR': None, 'IR': None, 'IBR': None,
-            'AC': 0, 'C': 0, 'Z': 0, 'MQ': 0, 'R': 0
+            'AC': 0, 'C': 0, 'Z': 0, 'MQ': 1, 'R': 0, 'A': 0, 'B': 0, 'C1': 0, 'D': 0
         }
 
     def busca(self):
         '''
         Essa função simula a busca de um ciclo de instrução
         MAR <- PC = O endereço da próxima instrução é colocado no MAR
-        MBR <- (memória) = O conteúdo da memória no endereço é lido para o MBR
+        MBR <- (memória[MAR]) = O conteúdo da memória no endereço é lido para o MBR
         PC <- PC + 1 = O PC aponta para a próxima instrução em sequência
         IR <- MBR = A instrução é movida para o IR para ser decodificada
         '''
-
-        # PC vai pro MAR
         self.registradores['MAR'] = self.registradores['PC']
-
-        # Leitura do dado na memória no endereço que o MAR aponta
         self.registradores['MBR'] = self.memoria.ler(self.registradores['MAR'])
-
-        # PC aponta pro próximo
         self.registradores['PC'] += 1
-        
-        # Vai pro IR
         self.registradores['IR'] = self.registradores['MBR']
-        
 
     def decodificacao(self) -> tuple:
         '''
@@ -106,20 +96,16 @@ class CPU:
         if not isinstance(instrucao, str):
             return 'NOP', []
 
-        partes = instrucao.split(maxsplit=1)
-        operandos_separados = []
+        partes = self.registradores['IR'].split(maxsplit=1) 
+    
         operacao = partes[0]
-
-        if len(partes) > 1:
-            operacao = partes[0]
-            operandos = partes[1]
-            operandos_separados = operandos.split(',')
-        operandos_limpos = []
-        for op in operandos_separados:
-            op_limpo = op.strip().replace('M', '').replace('(', '').replace(')', '')
-            operandos_limpos.append(op_limpo)
-
-        return operacao, operandos_limpos
+        operandos = partes[1]
+        if len(operandos) > 1:
+            operandos = operandos.split(',')
+        for i in range(len(operandos)):
+            operandos[i].replace(' ', '') 
+                  
+        return operacao, operandos
 
     def execucao(self, operacao, operandos):
         '''
@@ -129,133 +115,194 @@ class CPU:
         operacao = String com o comando (como LOAD)
         operandos = Uma lista com os parâmetros da operação (como MQ, M(0x101))
 
-        A partir dos parâmetros recebidos, realiza a operação correspondente, seja uma transferência de dados,
-        uma operação aritmética, lógica ou um desvio de fluxo
+        A partir dos parâmetros recebidos, chama a função que realiza a operação correspondente, 
+        seja uma transferência de dados, uma operação aritmética, lógica ou um desvio de fluxo
 
         A CPU realiza uma série de operações, e as executadas nessa simulação são:
         LOAD - carrega um valor da memória para um registrador (o padrão, caso não haja é o AC)
-        MULT - multiplica MQ por um valor na memória, salvando o resultado em AC e MQ
+        MUL - multiplica MQ por um valor na memória, salvando o resultado em AC e MQ
         STOR - armazena o valor de um registrador na memória (o padrão, caso não haja é o AC)
         SUB- subtrai um valor da memória de um registrador (o padrão, caso não haja é o AC) e atualiza as flags Z e C 
         JUMP - desvia o fluxo do programa para outro endereço de memória
         JUMP+ - desvia o fluxo somente se o resultado da última operação foi positivo ou zero
         ADD - soma um valor da memória a um registrador (o padrão, caso não haja é o AC) e atualiza as flags Z e C
+        MOV - copia o valor de um registrador para outro registrador
+        DIV - divide o AC por um valor da memória, guardando o quociente no MQ e o resto em AC
+        RSH - desloca todos os bits do AC uma posição para a esquerda (como se multiplicasse por 2)
+        LSH - desloca todos os bits do AC uma posição para a direita (como se dividisse por 2)
         '''
 
         if operacao == 'LOAD':
-            if len(operandos) == 1:
-                registrador = 'AC'
-                endereco = int(operandos[0], 16)
-            else: 
-                registrador = operandos[0]
-                endereco = int(operandos[1],16)
-                
-            self.registradores[registrador] = self.memoria.ler(endereco)
-            print(f'Registrador {registrador} atualizado com o valor {self.memoria.ler(endereco)} da memória no endereço {endereco}')
-        elif operacao == 'MULT':
-            #LOAD MQ, M(0x05)
-            #MULT M(0x06)
-            #MQ = MQ * M(0x06)
-
-            endereco = int(operandos[0],16)
-            memoria = self.memoria.ler(endereco)
-            resultado = self.registradores['MQ'] * memoria
-
-            parte_alta = resultado // MAX_VALOR_PALAVRA
-            parte_baixa = resultado % MAX_VALOR_PALAVRA
-
-            self.registradores['AC'] = parte_alta
-            self.registradores['MQ'] = parte_baixa
-
-
-            print(f'Resultado da multiplicação: AC = {self.registradores['AC']}, MQ = {self.registradores['MQ']}')
-
+            self.executa_load(operandos)
+        elif operacao == 'MUL':
+            self.executa_mul(operandos)
         elif operacao == 'STOR':
-            if len(operandos) == 1:
-                registrador = 'AC'
-                endereco = int(operandos[0], 16)
-            else: 
-                registrador = operandos[0]
-                endereco = int(operandos[1],16)
-            
-            valor = self.registradores[registrador]
-            self.memoria.escrever(endereco, valor)
-
-            print(f'Valor {valor} armazenado no endereço {endereco} da memória')
-
+            self.executa_stor(operandos)
         elif operacao == 'SUB':
-            ''' '''
-            if len(operandos) == 1:
-                registrador = 'AC'
-                endereco = int(operandos[0], 16)
-            else: 
-                registrador = operandos[0]
-                endereco = int(operandos[1],16)
-
-            valor1 = int(self.registradores[registrador])
-            valor2 = self.memoria.ler(endereco)
-        
-            resultado, flag_z, flag_c = self.ula.subtracao(valor1, valor2)
-            self.registradores[registrador] = resultado
-            self.registradores['Z'] = flag_z
-            self.registradores['C'] = flag_c
-            print(f'Resultado da subtração: {registrador}, Z = {self.registradores['Z']}, C = {self.registradores['C']}')
-
+            self.executa_sub(operandos)
         elif operacao == 'JUMP':
-            # JUMP 0X10
-
-            self.registradores['PC'] = int(operandos[0], 16)            
-            print(f'Realizado um JUMP para o endereco {self.registradores['PC']}')            
-
+           self.executa_jump(operandos)
         elif operacao == 'JUMP+':
-            #JUMP+ M(X)
-            if self.registradores['Z'] >= 0:
-                self.registradores['PC'] = int(operandos[0], 16)
-                print(f'Realizado um JUMP+ para o endereco {self.registradores['PC']}')
-            else:
-                print(f"JUMP+: Condição Z>=0 NÃO atendida. Salto ignorado.")
-                                        
+            self.executa_jumpmais(operandos)     
         elif operacao == 'ADD':         
+          self.executa_add(operandos)
+        elif operacao == 'MOV':
+            self.executa_mov(operandos)
+        elif operacao == 'DIV':
+            self.executa_div(operandos)
+        elif operacao == 'RSH':
+            self.executa_rsh(operandos)
+        elif operacao == 'LSH':
+            self.executa_lsh(operandos)
+        else:
+            print('Operação inexistente, verifique o arquivo')
+            
+    def executa_mul(self, operandos):
+        #LOAD MQ, M(0x05)
+        #MULT M(0x06)
+        #MQ = MQ * M(0x06)
+
+        endereco = int(operandos[0].replace('M(', '').replace(')', ''),16)
+        memoria = self.memoria.ler(endereco)
+        resultado = int(self.registradores['MQ']) * memoria
+        print(resultado)
+
+        parte_alta = resultado // MAX_VALOR_PALAVRA
+        parte_baixa = resultado % MAX_VALOR_PALAVRA
+
+        self.registradores['AC'] = parte_alta
+        self.registradores['MQ'] = parte_baixa
+
+        print(f'Resultado da multiplicação: AC = {self.registradores['AC']}, MQ = {self.registradores['MQ']}')       
+            
+            
+    def executa_mov(self, operandos):
+        # fonte: registrador/valor imediato | destino: registrador MOV MQ
+        #MOV A, MQ .... A <- MQ
             if len(operandos) == 1:
-                registrador = 'AC'
-                endereco = int(operandos[0], 16)
-            else: 
-                registrador = operandos[0]
-                endereco = int(operandos[1],16)
+                reg_origem = operandos[0]            
+                if reg_origem in self.registradores: # MOV MQ
+                    self.registradores['AC'] = self.registradores[reg_origem] #MQ
+                    print(f'MOV em modo endereçamento por registrador, leitura do dado {self.registradores['AC']}')                   
+            elif len(operandos) == 2: #MOV A, B 
+                reg_destino = operandos[0].replace(' ','')
+                reg_origem = operandos[1].replace(' ','')
+                print(reg_destino, reg_origem)
+                if reg_destino in self.registradores and reg_origem in self.registradores:
+                    self.registradores[reg_destino] = self.registradores[reg_origem]
+                    print(f'MOV em modo endereçamento imediato, {reg_destino} ← {reg_origem} ({self.registradores[reg_origem]})')
+
+                else: 
+                    print('n foii')
+                
+    def executa_stor(self, operandos):
+        if len(operandos) == 1:
+            registrador = 'AC'
+            endereco = int(operandos[0].replace('M(', '').replace(')', ''), 16)
+        else: # STOR M(10x10), A
+            print(operandos)
+            endereco = int(operandos[0].replace('M(', '').replace(')', ''),16)
+            registrador = operandos[1].replace(' ', '')
+            print('r',registrador)
+            print('e',endereco)
+        
+        valor = self.registradores[registrador]
+        self.memoria.escrever(endereco, valor)
+
+        print(f'STOR: Valor {valor} armazenado no endereço {endereco} da memória')
+            
+    def executa_jump(self, operandos):
+        # JUMP M(0X10)
+        self.registradores['PC'] = int(operandos[0].replace('M(', '').replace(')', ''), 16)            
+        print(f'Realizado um JUMP para o endereco {self.registradores['PC']}')  
+
+    def executa_jumpmais(self, operandos):
+        if self.registradores['Z'] >= 0:
+            self.registradores['PC'] = int(operandos[0].replace('M(', '').replace(')', ''), 16) 
+            print(f'Realizado um JUMP+ para o endereco {self.registradores['PC']}')
+        else:
+            print(f"JUMP+: Condição Z>=0 NÃO atendida. Salto ignorado.")
+               
+
+    def executa_load(self, operandos):
+            if len(operandos) == 1:
+               registrador = 'AC'
+               operando_origem = operandos[0]
+            else:
+               registrador = operandos[0]
+               operando_origem = operandos[1]
+
+            endereco = int(operando_origem.replace('M(', '').replace(')', ''),16)
+            dado = self.memoria.ler(endereco)
+            print(f'LOAD realizado, leitura do dado {dado} do endereco {endereco}')
+        
+            self.registradores[registrador] = dado
+                
+    def executa_add(self, operandos):
+        if len(operandos) == 1:
+            registrador = 'AC'
+            operando_origem = operandos[0].replace(' ', '')
+        else: 
+            registrador = operandos[0]
+            operando_origem = operandos[1].replace(' ', '')
+        #ADD A, M(0x101)
+        if operando_origem.startswith('M('): #Endereçamento direto
+            endereco = int(operando_origem.replace('M(', '').replace(')', ''),16)
             valor1 = int(self.registradores[registrador])
             valor2 = self.memoria.ler(endereco)
+        else: #Endereçamento imediato, ADD A
+            valor2 = int(operando_origem.replace('M(', '').replace(')', ''),16)
+            valor1 = int(self.registradores[registrador])
         
-            resultado, flag_z, flag_c = self.ula.soma(valor1, valor2)
-            self.registradores[registrador] = resultado
-            self.registradores['Z'] = flag_z
-            self.registradores['C'] = flag_c
-            print(f'Resultado da subtração: {registrador}, Z = {self.registradores['Z']}, C = {self.registradores['C']}')
-
+        self.registradores[registrador], self.registradores['Z'], self.registradores['C'] = self.ula.soma(valor1, valor2)
+        print(f'Resultado da subtração: {registrador}, Z = {self.registradores['Z']}, C = {self.registradores['C']}')
+                        
+    def executa_sub(self, operandos):
+        if len(operandos) == 1:
+            registrador = 'AC'
+            operando_origem = operandos[0].replace(' ', '')
+        else: 
+            registrador = operandos[0]
+            operando_origem = operandos[1].replace(' ','')
+            
+        if operando_origem.startswith('M('):
+            endereco = int(operando_origem.replace('M(', '').replace(')', ''),16)
+            valor1 = int(self.registradores[registrador])
+            valor2 = self.memoria.ler(endereco)
+        else:
+            valor1 = int(self.registradores[registrador])
+            valor2 = int(operando_origem.replace('M(', '').replace(')', ''), 16)
+        self.registradores[registrador], self.registradores['Z'], self.registradores['C'] = self.ula.subtracao(valor1, valor2)
+        print(f'Resultado da subtração: {registrador}, Z = {self.registradores['Z']}, C = {self.registradores['C']}')
+    
     def pausa_instrucao(self):
         '''
         Função que inicia e controla o ciclo da instrução principal, pausando a cada duas operações,
         sendo necessário clicar em enter para continuar
         '''
+        print('--------------------------------')
         print('Estado inicial dos registradores')
         self.mostra_registradores()
         simulacao = True
         while simulacao:
-            input('Digite enter para realizar 2 operações...')
+            input('\nDigite enter para realizar 2 operações...\n')
            
-            for i in range(2):
+            for _ in range(2):
                 instrucao = self.memoria.ler(self.registradores['PC'])
 
                 if instrucao == None or instrucao == 0:
                     simulacao = False
-                    break  # sera que precisa desse break?
-            
-                self.busca()
-                operacao, operandos_separados = self.decodificacao()
-                self.execucao(operacao, operandos_separados)
-                print('Estado dos registradores:')
-                self.mostra_registradores()
+                else:
+                    self.busca()
+                    operacao, operandos_separados = self.decodificacao()
+                    self.execucao(operacao, operandos_separados)
+                    print('--------------------------------')
+                    print('Estado dos registradores:')
+                    self.mostra_registradores()
+                    
         if simulacao:
             print("Final das 2 primeiras operaçoes")
+        print('Fim!!')
 
     def mostra_registradores(self):
         '''
@@ -270,9 +317,12 @@ class CPU:
         print(f'Z - {self.registradores['Z']}')
         print(f'C - {self.registradores['C']}')
         print(f'R - {self.registradores['R']}')
+        print(f"A - {self.registradores['A']}")
+        print(f"B - {self.registradores['B']}") if self.registradores['B'] else ''
+        print(f"C1 - {self.registradores['C1']}") if self.registradores['C1'] else ''
+        print(f"D - {self.registradores['D']}") if self.registradores['D'] else ''
+        print('--------------------------------')
         
-
-
 class ULA:
     '''
     Representa a unidade lógica e aritmética (ULA) do simulador, responsável pela realização das operações de cálculo
@@ -345,8 +395,8 @@ def inicializa():
     '''
     Função responsável pela abertura do arquivo e retorno de duas listas: 
     '''
-    if os.path.exists('teste.txt'):
-        with open('teste.txt', 'r') as arq_operacoes:
+    if os.path.exists('selecao.txt'):
+        with open('selecao.txt', 'r') as arq_operacoes:
             lista_operacoes_memoria = arq_operacoes.readlines()
             op_memoria = True
             memoria: list = []
@@ -378,7 +428,7 @@ def main():
             endereco_int = int(partes[1], 16)
             memoria_principal.escrever(endereco_int, valor_int)
     
-    endereco_inicio = 0x20
+    endereco_inicio = 0x0A
     endereco_atual = endereco_inicio
 
     for instrucao in operacoes:
@@ -387,9 +437,7 @@ def main():
     
     processador.registradores['PC'] = endereco_inicio
     processador.pausa_instrucao()
-
-
-
+    print(memoria_principal.memoria)
 
 if __name__ == "__main__":
     main()
