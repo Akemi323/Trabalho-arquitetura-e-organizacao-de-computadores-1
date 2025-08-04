@@ -11,23 +11,22 @@
 - João Vitor Bidoia Ângelo, RA: 139617
 - Letícia Akemi Nakahati Vieira, RA: 140535
 
-
 ## 2. Descrição do Projeto
-Este projeto consiste em um simulador em Python para uma arquitetura de computador, inspirada no modelo IAS de John von Neumann. O simulador implementa os principais componentes de um computador – CPU, ULA e Memória – de forma orientada a objetos.
+Este projeto consiste em um simulador em Python para uma arquitetura de computador, inspirada no modelo IAS de John von Neumann. O simulador implementa os principais componentes de um computador – CPU, ULA e Memória – de forma orientada a objetos. No desenvolvimento da simulação, não é considerado o ciclo de interrupção.
 
-O objetivo principal é carregar programas escritos em uma linguagem de máquina a partir de arquivos de texto e executar o ciclo de instrução (Busca, Decodificação e Execução) para cada comando, permitindo a observação detalhada do estado dos registradores a cada passo. A simulação pode ser controlada interativamente pelo usuário, que avança a execução pressionando a tecla <ENTER>.
+O objetivo principal é carregar programas escritos em uma linguagem de máquina a partir de arquivos de texto e executar o ciclo de instrução (Busca, Decodificação e Execução) para cada comando, permitindo a observação detalhada do estado dos registradores a cada passo, além da instrução realizada. A simulação pode ser controlada interativamente pelo usuário, que avança a execução pressionando a tecla <ENTER> a cada duas instruções .
 
 ## 3. Arquitetura do Simulador
 O simulador foi dividido em três classes principais, representando os componentes lógicos de um computador:
 
 * **`Memoria`**: Simula a memória RAM como um vetor de 4096 palavras. É responsável por `ler()` e `escrever()` dados e instruções em endereços específicos.
 
-* **`ULA` (Unidade Lógica e Aritmética)**: Atua como a "calculadora" do processador. É uma classe sem estado que recebe valores numéricos, realiza operações (soma, subtração, multiplicação, etc.) e retorna o resultado e o estado atualizado dos flags de status (`Z` e `C`) para a CPU.
+* **`ULA` (Unidade Lógica e Aritmética)**: Atua como a "calculadora" do processador. É uma classe sem estado que recebe valores numéricos, realiza operações (soma, subtração, multiplicação, divisão, move os bits para a esquerda e para a direita) e retorna o resultado e o estado atualizado dos flags de status (`Z` e `C`) para a CPU.
 
-* **`CPU`**: É o componente central e o "cérebro" do simulador. Contém o dicionário de registradores, orquestra o ciclo de instrução através do método `run()` (no seu código, `pausa_instrucao`), e comanda a ULA e a Memória para executar as tarefas decodificadas.
+* **`CPU`**: É o componente central e o "cérebro" do simulador. Contém o dicionário de registradores, realiza o ciclo de instrução através do método `pausa_instrucao`, e comanda a ULA e a Memória para executar as tarefas decodificadas.
 
 ## 4. Conjunto de Instruções (ISA)
-O simulador suporta um conjunto de instruções com múltiplos modos de endereçamento para flexibilidade.
+O simulador suporta um conjunto de instruções com múltiplos modos de endereçamento, visando atender as condições do trabalho e proporcionar flexibilidade.
 
 | Mnemônico | Sintaxe(s) Suportada(s) | Descrição |
 | :--- | :--- | :--- |
@@ -43,7 +42,6 @@ O simulador suporta um conjunto de instruções com múltiplos modos de endereç
 | **LSH** | `LSH` | Desloca os bits do `AC` uma posição para a esquerda (multiplicação por 2) e atualiza o flag `C`. |
 | **RSH** | `RSH` | Desloca os bits do `AC` uma posição para a direita (divisão por 2) e atualiza o flag `C`. |
 
-*As condições de endereçamento direto e imediato foram atendidas nas funções necessárias*
 *Quando não há o registrador explicitamente, o padrão é o AC*
 
 ## 5. Como Executar o Simulador
@@ -52,10 +50,10 @@ O simulador suporta um conjunto de instruções com múltiplos modos de endereç
 - Python 3.x instalado no sistema.
 
 ### 5.2. Passos para Execução
-O programa é executado via terminal, especificando o algoritmo a ser testado.
+O programa é executado no terminal, especificando o algoritmo a ser testado.
 
 1.  Garanta que os arquivos de programa (`fatorial.txt`, `selecao.txt`) estejam na mesma pasta que o script principal `Ciclo_instrucao.py`.
-2.  Abra um terminal na pasta do projeto.
+2.  Abra o terminal na pasta do projeto.
 3.  Use um dos seguintes comandos:
 
     * **Para executar o algoritmo de Fatorial:**
@@ -68,7 +66,7 @@ O programa é executado via terminal, especificando o algoritmo a ser testado.
         ```
 
 - A **flag** (`-f` ou `-s`) seleciona qual arquivo `.txt` será carregado.
-- O **endereço hexadecimal** (como `0x20`) é o endereço inicial em que as instruções do programa serão carregadas na memória.
+- O **endereço hexadecimal** (como `0x20`) é o endereço inicial em que as instruções do programa serão carregadas na memória, esse endereço é inserido pelo usuário.
 - É preciso considerar os endereços onde as instruções estão sendo armazenadas, visando não gera uma falha no código
 
 ## 6. Formato do Arquivo de Entrada
