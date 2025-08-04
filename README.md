@@ -1,8 +1,8 @@
 # Projeto: Simulador de ciclo de instrução Baseada em IAS
 
+- Universidade estadual de Maringá
 - Disciplina: arquitetura e organização de computadores
-- Curso: Bacharelado em Ciência da Computação
-- Data de Entrega: 04/08/2025 
+- Curso: Ciência da Computação
 - Professor: Rodrigo Calvo 
 
 ## 1. Autores
@@ -13,9 +13,9 @@
 
 
 ## 2. Descrição do Projeto
-Este projeto consiste em um simulador em Python para uma arquitetura de computador hipotética, fortemente inspirada no modelo IAS de John von Neumann. O simulador implementa os principais componentes de um computador – CPU, ULA e Memória – de forma modular e orientada a objetos.
+Este projeto consiste em um simulador em Python para uma arquitetura de computador, inspirada no modelo IAS de John von Neumann. O simulador implementa os principais componentes de um computador – CPU, ULA e Memória – de forma orientada a objetos.
 
-O objetivo principal é carregar programas escritos em uma linguagem de máquina customizada a partir de arquivos de texto e executar o ciclo de instrução (Busca, Decodificação e Execução) para cada comando, permitindo a observação detalhada do estado dos registradores a cada passo. A simulação pode ser controlada interativamente pelo usuário, que avança a execução pressionando a tecla <ENTER>.
+O objetivo principal é carregar programas escritos em uma linguagem de máquina a partir de arquivos de texto e executar o ciclo de instrução (Busca, Decodificação e Execução) para cada comando, permitindo a observação detalhada do estado dos registradores a cada passo. A simulação pode ser controlada interativamente pelo usuário, que avança a execução pressionando a tecla <ENTER>.
 
 ## 3. Arquitetura do Simulador
 O simulador foi dividido em três classes principais, representando os componentes lógicos de um computador:
@@ -29,22 +29,22 @@ O simulador foi dividido em três classes principais, representando os component
 ## 4. Conjunto de Instruções (ISA)
 O simulador suporta um conjunto de instruções com múltiplos modos de endereçamento para flexibilidade.
 
-| Mnemônico | Sintaxe(s) Suportada(s) | Descrição Detalhada |
+| Mnemônico | Sintaxe(s) Suportada(s) | Descrição |
 | :--- | :--- | :--- |
-| **LOAD** | `LOAD [reg], M(addr)`<br>`LOAD [reg], valor` | Carrega um valor para um registrador. A origem pode ser a Memória (Direto), um valor numérico (Imediato) ou outro Registrador. |
-| **STOR** | `STOR M(addr), [reg]` | Armazena o valor de um registrador (padrão `AC`) em um endereço de memória. |
-| **ADD** | `ADD [reg], M(addr)`<br>`ADD [reg], valor` | Soma um valor a um registrador (padrão `AC`) e atualiza as flags `Z` e `C`. |
-| **SUB** | `SUB [reg], M(addr)`<br>`SUB [reg], valor` | Subtrai um valor a um registrador (padrão `AC`) e atualiza as flags `Z` e `C`. |
-| **MULT** | `MULT M(addr)` | Multiplica o registrador `MQ` por um valor da memória. O resultado de 80 bits é salvo em `AC` (parte alta), `MQ` (parte baixa) we atualiza as flags `Z` e `C`. |
-| **DIV** | `DIV M(addr)` | Divide o `AC` por um valor da memória, guardando o quociente em `MQ` e o resto em `AC`. |
-| **MOV** | `MOV <reg_dest>, <reg_orig>` | Copia o valor de um registrador de origem para um de destino. |
-| **JUMP** | `JUMP M(addr)` ou `JUMP addr` | Desvia incondicionalmente o fluxo do programa, alterando o `PC` para o endereço de destino. |
-| **JUMP+** | `JUMP+ M(addr)` ou `JUMP+ addr`| Desvia o fluxo se o flag `Z` indicar que o último resultado foi positivo ou zero (`Z >= 0`). |
+| **LOAD** | `LOAD A, M(0x103)`<br>`LOAD M(0x103)` | Carrega um valor da memória para um registrador. |
+| **STOR** | `STOR M(0x102), A`<br> `STOR M(0X03)` | Armazena o valor de um registrador em um endereço de memória. |
+| **ADD** | `ADD M(0x101)`<br>`ADD A, 0x101`<br>`ADD 0x101`<br>`ADD A, M(0x101)` | Soma um valor a um registrador e atualiza as flags `Z` e `C`. |
+| **SUB** | `SUB M(0x101)`<br>`SUB 0x101`<br>`SUB A, M(0x101)`<br>`SUB A, 0x101` | Subtrai um valor a um registrador  e atualiza as flags `Z` e `C`. |
+| **MUL** | `MUL M(0x06))` | Multiplica o registrador `MQ` por um valor da memória. O resultado de 80 bits é salvo em `AC` (parte alta), `MQ` (parte baixa) e atualiza as flags `Z` e `C`. |
+| **DIV** | `DIV M(0x03)` | Divide o `AC` por um valor da memória, guardando o quociente em `MQ` e o resto em `AC`. |
+| **MOV** | `MOV A,B`<br>`MOV A`<br>`MOV 0x20`<br>`MOV A,0x20` | Movimentação de dados entre registradores.  |
+| **JUMP** | `JUMP M(0X03)` <br> `JUMP 0X03` | Desvia o fluxo do programa, alterando o `PC` para o endereço de destino. |
+| **JUMP+** | `JUMP+ M(0x03)` <br> `JUMP+ 0x03`| Desvia o fluxo se o flag `Z` indicar que o último resultado foi positivo ou zero (`Z >= 0`). |
 | **LSH** | `LSH` | Desloca os bits do `AC` uma posição para a esquerda (multiplicação por 2) e atualiza o flag `C`. |
 | **RSH** | `RSH` | Desloca os bits do `AC` uma posição para a direita (divisão por 2) e atualiza o flag `C`. |
 
-tem que arrumar os comandos que aceita
-*Onde `[reg]` é opcional, o padrão é o Acumulador (`AC`).*
+*As condições de endereçamento direto e imediato foram atendidas nas funções necessárias*
+*Quando não há o registrador explicitamente, o padrão é o AC*
 
 ## 5. Como Executar o Simulador
 
@@ -60,21 +60,22 @@ O programa é executado via terminal, especificando o algoritmo a ser testado.
 
     * **Para executar o algoritmo de Fatorial:**
         ```sh
-        python Ciclo_instrucao.py -f pos_memoria
+        python Ciclo_instrucao.py -f 0x20
         ```
     * **Para executar o algoritmo de Selection Sort:**
         ```sh
-        python Ciclo_instrucao.py -s pos_memoria
+        python Ciclo_instrucao.py -s 0x20
         ```
 
 - A **flag** (`-f` ou `-s`) seleciona qual arquivo `.txt` será carregado.
-- O **endereço hexadecimal** (`pos_memoria`) é o endereço inicial em que as instruções do programa serão carregadas na memória.
+- O **endereço hexadecimal** (como `0x20`) é o endereço inicial em que as instruções do programa serão carregadas na memória.
+- É preciso considerar os endereços onde as instruções estão sendo armazenadas, visando não gera uma falha no código
 
 ## 6. Formato do Arquivo de Entrada
 O simulador lê arquivos `.txt` com a seguinte estrutura:
 
 1.  **Seção de Dados:**
-    As primeiras linhas são para inicializar a memória. O formato é `<valor_decimal> <endereco_hexadecimal>`.
+    As primeiras linhas são para inicializar a memória.
     ```
     # Coloca o número 5 na posição 256 da memória.
     5 0x100
