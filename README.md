@@ -1,4 +1,4 @@
-# Projeto: Simulador de ciclo de instrução Baseada em IAS
+# Projeto: Simulador de ciclo de instrução baseada na arquitetura IAS
 
 - Universidade estadual de Maringá
 - Disciplina: arquitetura e organização de computadores
