@@ -1,6 +1,4 @@
-=========================================================
-      Projeto: Simulador de CPU Baseada em IAS
-=========================================================
+Projeto: Simulador de CPU Baseada em IAS
 
 Disciplina: ARQUITETURA E ORGANIZAÇÃO DE COMPUTADORES [cite: 3]
 Curso: Bacharelado em Ciência da Computação
@@ -8,19 +6,21 @@ Data de Entrega: 04/08/2025 [cite: 79]
 Professor: Rodrigo Calvo [cite: 4]
 
 ## 1. Autores
-- [Nome Completo do Aluno 1], RA: [RA do Aluno 1]
-- [Nome Completo do Aluno 2], RA: [RA do Aluno 2]
-- [Nome Completo do Aluno 3], RA: [RA do Aluno 3]
+
+- Isadora Dantas Bruchmam, RA: 140870
+- João Vitor Bidoia Ângelo, RA: 139617
+- Letícia Akemi Nakahati Vieira, RA: 140535
+
 
 ## 2. Descrição do Projeto
-Este projeto implementa um simulador em Python para uma arquitetura de computador inspirada no modelo IAS. O objetivo é simular o ciclo de instrução de um processador, permitindo a execução de programas em uma linguagem de máquina simplificada e a visualização do estado dos registradores a cada passo[cite: 7, 66]. O simulador foi construído de forma modular, com classes que representam a CPU, a Memória e a ULA.
+Este projeto implementa um simulador em Python para uma arquitetura de computador inspirada no modelo IAS. O objetivo é simular o ciclo de instrução de um processador, permitindo a execução de programas em uma linguagem de máquina simplificada e a visualização do estado dos registradores a cada passo. O simulador foi construído de forma modular, com classes que representam a CPU, a Memória e a ULA.
 
 ## 3. Funcionalidades e Instruções Implementadas
 - Simulação completa do ciclo de Busca, Decodificação e Execução.
 - Memória de 4096 palavras, com cada palavra tendo um tamanho conceitual de 40 bits.
 - CPU com registradores principais (PC, MAR, MBR, IR, AC, MQ) e de status (Z, C).
 - ULA sem estado, responsável pelos cálculos aritméticos e lógicos.
-- Suporte para Endereçamento Direto e Imediato[cite: 52].
+- Suporte para Endereçamento Direto e Imediato.
 - Conjunto de instruções implementado:
   - **LOAD**: Carrega um dado da memória, de outro registrador ou um valor imediato.
   - **STOR**: Armazena um dado de um registrador na memória.
@@ -32,7 +32,6 @@ Este projeto implementa um simulador em Python para uma arquitetura de computado
   - **JUMP+ / JUMP_ZERO / JUMP_NEG**: Desvios condicionais baseados nos flags de status.
   - **MOV**: Copia dados entre registradores.
   - **LSH / RSH**: Deslocamento de bits à esquerda e à direita.
-  - **HALT**: Encerra a simulação.
 
 ## 4. Como Executar o Simulador
 
@@ -45,9 +44,13 @@ Este projeto implementa um simulador em Python para uma arquitetura de computado
 2.  Abra um terminal (Prompt de Comando, PowerShell, etc.) e navegue até a pasta do projeto.
 
 3.  Execute o script com o seguinte comando:
-    python Ciclo_instrucao.py
+    Para o fatorial:
+    python Ciclo_instrucao.py -f <posicao_hexa>
+    Para a seleção:
+    python Ciclo_instrucao.py -s <posicao_hexa>
+    
 
-4.  O simulador irá iniciar, carregar o programa do arquivo `teste.txt` na memória e começar a execução. Siga as instruções no terminal (pressionando <ENTER>) para avançar ciclo por ciclo.
+5.  O simulador irá iniciar, carregar o programa do arquivo na memória e começar a execução. Siga as instruções no terminal (pressionando <ENTER>) para avançar ciclo por ciclo.
 
 ## 5. Formato do Arquivo de Entrada (`teste.txt`)
 O arquivo de programa (`.txt`) deve seguir o formato que a função `inicializa` do código espera:
@@ -61,21 +64,3 @@ O arquivo de programa (`.txt`) deve seguir o formato que a função `inicializa`
 3.  **Seção de Instruções:** As linhas restantes são as instruções do programa. Elas serão carregadas sequencialmente a partir de um endereço padrão no código.
     Exemplo: `LOAD AC, M(0x100)`
 
-## 6. Exemplo de Arquivo `teste.txt`
-Este programa calcula o fatorial de 4.
-
-# Conteúdo do arquivo teste.txt
-4 0x100
-1 0x101
-1 0x102
-
-LOAD AC, 0x100
-JUMP_ZERO 0x29
-LOAD MQ, 0x102
-MULT 0x100
-STOR MQ, 0x102
-LOAD AC, 0x100
-SUB 0x101
-STOR AC, 0x100
-JUMP 0x20
-HALT
