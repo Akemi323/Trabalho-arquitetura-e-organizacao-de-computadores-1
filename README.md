@@ -1,4 +1,4 @@
-###Projeto: Simulador de CPU Baseada em IAS
+### Projeto: Simulador de CPU Baseada em IAS
 
 - Disciplina: ARQUITETURA E ORGANIZAÇÃO DE COMPUTADORES
 - Curso: Bacharelado em Ciência da Computação
