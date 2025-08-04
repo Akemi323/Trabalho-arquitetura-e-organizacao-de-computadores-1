@@ -23,7 +23,7 @@ O simulador foi dividido em três classes principais, representando os component
 
 * **`ULA` (Unidade Lógica e Aritmética)**: Atua como a "calculadora" do processador. É uma classe sem estado que recebe valores numéricos, realiza operações (soma, subtração, multiplicação, divisão, move os bits para a esquerda e para a direita) e retorna o resultado e o estado atualizado dos flags de status (`Z` e `C`) para a CPU.
 
-* **`CPU`**: É o componente central e o "cérebro" do simulador. Contém o dicionário de registradores, realiza o ciclo de instrução através do método `pausa_instrucao`, e comanda a ULA e a Memória para executar as tarefas decodificadas.
+* **`CPU`**: É o componente central e o "cérebro" do simulador. Contém o dicionário de registradores, realiza o ciclo de instrução através do método `pausa_instrucao()`, e comanda a ULA e a Memória para executar as tarefas decodificadas.
 
 ## 4. Conjunto de Instruções (ISA)
 O simulador suporta um conjunto de instruções com múltiplos modos de endereçamento, visando atender as condições do trabalho e proporcionar flexibilidade.
@@ -31,7 +31,7 @@ O simulador suporta um conjunto de instruções com múltiplos modos de endereç
 | Mnemônico | Sintaxe(s) Suportada(s) | Descrição |
 | :--- | :--- | :--- |
 | **LOAD** | `LOAD A, M(0x103)`<br>`LOAD M(0x103)`<br>`LOAD A, M(B)`<br>`LOAD M(A)` | Carrega um valor da memória para um registrador. |
-| **STOR** | `STOR M(0x102), A`<br> `STOR M(0X03)` | Armazena o valor de um registrador em um endereço de memória. |
+| **STOR** | `STOR M(0x102), A`<br> `STOR M(0X03)`<br> `STOR M(A)`<br> `STOR M(A), A` | Armazena o valor de um registrador em um endereço de memória. |
 | **ADD** | `ADD M(0x101)`<br>`ADD A, 0x101`<br>`ADD 0x101`<br>`ADD A, M(0x101)` | Soma um valor a um registrador e atualiza as flags `Z` e `C`. |
 | **SUB** | `SUB M(0x101)`<br>`SUB 0x101`<br>`SUB A, M(0x101)`<br>`SUB A, 0x101` | Subtrai um valor a um registrador  e atualiza as flags `Z` e `C`. |
 | **MUL** | `MUL M(0x06))` | Multiplica o registrador `MQ` por um valor da memória. O resultado de 80 bits é salvo em `AC` (parte alta), `MQ` (parte baixa) e atualiza as flags `Z` e `C`. |
