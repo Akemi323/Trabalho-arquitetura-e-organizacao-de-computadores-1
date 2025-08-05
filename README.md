@@ -88,6 +88,6 @@ O simulador lê arquivos `.txt` com a seguinte estrutura:
     ```
 
 ## 7. Algoritmos Implementados
-Para o trabalho, os seguintes algoritmos foram escritos em Assembly e estão disponíveis para teste:
+Para o trabalho, os seguintes algoritmos foram escritos em linguagem de máquina e estão disponíveis para teste:
 - **`fatorial.txt`**: Calcula o fatorial de um número.
 - **`selecao.txt`**: Ordena um vetor de números usando o método Selection Sort.
