@@ -58,16 +58,15 @@ O programa é executado no terminal, especificando o algoritmo a ser testado.
 
     * **Para executar o algoritmo de Fatorial:**
         ```sh
-        python Ciclo_instrucao.py -f 0x20
+        python Ciclo_instrucao.py -f 
         ```
     * **Para executar o algoritmo de Selection Sort:**
         ```sh
-        python Ciclo_instrucao.py -s 0x20
+        python Ciclo_instrucao.py -s 
         ```
 
 - A **flag** (`-f` ou `-s`) seleciona qual arquivo `.txt` será carregado.
-- O **endereço hexadecimal** (como `0x20`) é o endereço inicial em que as instruções do programa serão carregadas na memória, esse endereço é inserido pelo usuário.
-- É preciso considerar os endereços onde as instruções estão sendo armazenadas, visando não gera uma falha no código
+- O **endereço hexadecimal** iniciará em 0x0A
 
 ## 6. Formato do Arquivo de Entrada
 O simulador lê arquivos `.txt` com a seguinte estrutura:
