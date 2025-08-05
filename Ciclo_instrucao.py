@@ -68,7 +68,8 @@ class CPU:
         self.memoria = memoria
         self.registradores = {
             'PC': None, 'MAR': 0, 'MBR': None, 'IR': None, 'IBR': None,
-            'AC': 0, 'C': 0, 'Z': 0, 'MQ': 1, 'R': 0, 'A': 0, 'B': 0, 'C1': 0, 'D': 0
+            'AC': 0, 'C': 0, 'Z': 0, 'MQ': 1, 'R': 0,
+            'A': 0, 'B': 0, 'C1': 0, 'D': 0, 'E': 0 
         }
 
     def busca(self):
@@ -308,6 +309,7 @@ class CPU:
         tipos de instruções que aceita:
         1. JUMP+ M(0x03)
         2. JUMP+ 0x03
+        3. JUMP+ M(A)
 
         Parâmetros:
         operandos = Lista com os operandos
@@ -337,7 +339,7 @@ class CPU:
         if len(operandos) == 1: # ADD M(0x101); ADD 0x101
             registrador = 'AC'
             operando_origem = operandos[0]
-        else: # ADD A, 0x101, ADD A, M(0x101)
+        else: # ADD A, 0x101, ADD A, M(0x101), ADD D, 2
             registrador = operandos[0]
             operando_origem = operandos[1]
         if operando_origem.startswith('M('): #Endereçamento direto
@@ -345,7 +347,7 @@ class CPU:
             valor1 = int(self.registradores[registrador])
             valor2 = self.memoria.ler(endereco)
         else: #Endereçamento imediato, ADD A
-            valor2 = int(operando_origem.replace('M(', '').replace(')', ''),16)
+            valor2 = int(operando_origem)
             valor1 = int(self.registradores[registrador])
         
         self.registradores[registrador], self.registradores['Z'], self.registradores['C'] = self.ula.soma(valor1, valor2)
@@ -422,9 +424,6 @@ class CPU:
 
         print(f'RSH: bits deslocado para a esquerda: Resultado = {resultado}, C = {flag_c}')
 
-
-
-
     def executa_lsh(self):
         '''
         Função que executa o deslocamento de todos os bits do AC para a direita (LSH)
@@ -442,7 +441,6 @@ class CPU:
         flag_c = self.registradores['C']
 
         print(f'RSH: bits deslocado para a direita: Resultado = {resultado}, C = {flag_c}')
-
 
     def pausa_instrucao(self):
         '''
@@ -491,6 +489,7 @@ class CPU:
         print(f"B - {self.registradores['B']}")
         print(f"C1 - {self.registradores['C1']}")
         print(f"D - {self.registradores['D']}")
+        print(f"E - {self.registradores['E']}")
         
 class ULA:
     '''
@@ -676,30 +675,21 @@ def inicializa(nome_arq):
                     operacoes.append(op.strip('\n'))             
         print(f'Memorias: {memoria}\nOperacoes: {operacoes}') 
         return memoria, operacoes
-    #else:
-    print("Erro")
 
       
 def main():
-    if len(sys.argv) != 3:
-        print("Uso: python Ciclo_instrucao.py <-f ou -s> <endereço da primeira instrução>")
+    if len(sys.argv) != 2:
+        print("Uso: python Ciclo_instrucao.py <-f ou -s>")
         sys.exit(1)
 
     flag = sys.argv[1]
-    endereco = sys.argv[2]
     if flag == '-f':
         nome_arq = 'fatorial.txt'
     elif flag == '-s':
         nome_arq = 'selecao.txt'
     else:
         print('Flag inválida. Use -f para executar o algoritmo fatorial ou -s para executar o Selection Sort')
-        sys.exit(1)
-
-    try:
-        endereco_inicio = int(endereco, 16)
-    except ValueError:
-        print("Erro: endereço deve estar em hexadecimal. Ex: 0x0A")
-        sys.exit(1)    
+        sys.exit(1)  
     
     memoria_principal = Memoria(4096)
     ula = ULA()
@@ -714,6 +704,7 @@ def main():
             endereco_int = int(partes[1], 16)
             memoria_principal.escrever(endereco_int, valor_int)
 
+    endereco_inicio = 0x0A
     endereco_atual = endereco_inicio
 
     for instrucao in operacoes:
