@@ -1,12 +1,56 @@
-em python:
+98 0x100
+61 0x101
+6 0x102
+5 0x103
 
-for i in range(len(lista)-2):
-    menor = i 
-    for j in range(i+1, len(lista))
-        if lista[menor] < lista[j]
-            menor = j
-    if menor != i:
-        aux = lista[menor]
-        lista[menor] = lista [j]
-        lista[j] = lista[menor]
-
+LOAD A, M(0x100)
+LOAD B, M(0x101)
+MOV C1, 0X100
+MOV B
+SUB A
+JUMP+ M(0x12)
+MOV C1, 0X101
+MOV A, B
+LOAD B, M(0X102)
+MOV B
+SUB A
+JUMP+ M(0X18)
+MOV C1, 0X102
+MOV A, B
+LOAD B, M(0X103)
+MOV B
+SUB A
+JUMP+ M(0X1E)
+MOV C1, 0X103
+MOV A, B
+LOAD D, M(0X100)
+STOR M(C1), D
+STOR M(0X100), A
+LOAD A, M(0X101)
+LOAD B, M(0X102)
+MOV C1, 0X101
+MOV B
+SUB A
+JUMP+ M(0x29)
+MOV C1, 0X102
+MOV A, B
+LOAD B, M(0X103)
+MOV B
+SUB A
+JUMP+ M(0x2F)
+MOV C1, 0X103
+MOV A, B
+LOAD D, M(0x101)
+STOR M(C1), D
+STOR M(0X101), A
+LOAD A, M(0X102)
+LOAD B, M(0X103)
+MOV C1, 0X102
+MOV B
+SUB A
+JUMP+ M(0X3D)
+MOV C1, 0X103
+LOAD D, 0X103
+LOAD A, 0X102
+STOR M(0X102), D
+STOR M(0X103), A
