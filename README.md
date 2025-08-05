@@ -81,7 +81,7 @@ O simulador lê arquivos `.txt` com a seguinte estrutura:
     Uma única linha em branco é usada para separar os dados das instruções.
 
 3.  **Seção de Instruções:**
-    As linhas restantes são as instruções do programa, que serão carregadas em sequência a partir do endereço inicial fornecido na linha de comando.
+    As linhas restantes são as instruções do programa, que serão carregadas em sequência.
     ```
     # Carrega o valor do endereço 0x100 no Acumulador.
     LOAD AC, M(0x100)
