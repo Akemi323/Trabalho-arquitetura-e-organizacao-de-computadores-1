@@ -34,7 +34,7 @@ O simulador suporta um conjunto de instruções com múltiplos modos de endereç
 | **STOR** | `STOR M(0x102), A`<br> `STOR M(0X03)`<br> `STOR M(A)`<br> `STOR M(A), A` | Armazena o valor de um registrador em um endereço de memória. |
 | **ADD** | `ADD M(0x101)`<br>`ADD A, 0x101`<br>`ADD 0x101`<br>`ADD A, M(0x101)` | Soma um valor a um registrador e atualiza as flags `Z` e `C`. |
 | **SUB** | `SUB M(0x101)`<br>`SUB 0x101`<br>`SUB A, M(0x101)`<br>`SUB A, 0x101`<br>`SUB A`| Subtrai um valor a um registrador  e atualiza as flags `Z` e `C`. |
-| **MUL** | `MUL M(0x06))` | Multiplica o registrador `MQ` por um valor da memória. O resultado de 80 bits é salvo em `AC` (parte alta), `MQ` (parte baixa) e atualiza as flags `Z` e `C`. |
+| **MUL** | `MUL M(0x06)` | Multiplica o registrador `MQ` por um valor da memória. O resultado de 80 bits é salvo em `AC` (parte alta), `MQ` (parte baixa) e atualiza as flags `Z` e `C`. |
 | **DIV** | `DIV M(0x03)` | Divide o `AC` por um valor da memória, guardando o quociente em `MQ` e o resto em `AC`. |
 | **MOV** | `MOV A,B`<br>`MOV A`<br>`MOV 0x20`<br>`MOV A,0x20` | Movimentação de dados entre registradores.  |
 | **JUMP** | `JUMP M(0X03)` <br> `JUMP 0X03` | Desvia o fluxo do programa, alterando o `PC` para o endereço de destino. |
