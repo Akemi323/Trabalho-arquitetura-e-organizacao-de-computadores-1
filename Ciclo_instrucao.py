@@ -2,6 +2,7 @@
 # Isadora Dantas Bruchmam (ra140870)
 # João Vitor Bidoia Ângelo(ra139617)
 # Letícia Akemi Nakahati Vieira (ra140535)
+
 from __future__ import annotations
 import os
 import sys
@@ -85,7 +86,7 @@ class CPU:
         self.registradores['PC'] += 1
         self.registradores['IR'] = self.registradores['MBR']
 
-    def decodificacao(self) -> tuple:
+    def decodificacao(self):
         '''
         Essa função simula a decodificação de um ciclo de instrução
         Analisa a string presente no IR , separando a mesma em operação(como ['LOAD']) e operandos (como ['AC', '0X10']
@@ -132,7 +133,6 @@ class CPU:
         RSH - desloca todos os bits do AC uma posição para a esquerda (como se multiplicasse por 2)
         LSH - desloca todos os bits do AC uma posição para a direita (como se dividisse por 2)
         '''
-
         if operacao == 'LOAD':
             self.executa_load(operandos)
         elif operacao == 'MUL':
@@ -186,7 +186,7 @@ class CPU:
             endereco = int(operando_origem, 16)
         
         dado = self.memoria.ler(endereco)
-        print(f'LOAD: leitura do dado {dado} do endereco {endereco}')
+        print(f'LOAD: Carregando {operando_origem} ← {dado}')
     
         self.registradores[registrador] = dado
                 
@@ -201,7 +201,6 @@ class CPU:
         Parâmetros:
         operandos = Lista com os operandos
         '''
-
         endereco = int(operandos[0].replace('M(', '').replace(')', '') , 16)
     
         valor1 = self.memoria.ler(endereco)
@@ -284,7 +283,6 @@ class CPU:
                 valor2 = int(self.registradores[operando_origem])
             else:
                 valor2 = int(operando_origem, 16)
-            print(valor1, valor2)
         self.registradores[registrador], self.registradores['Z'], self.registradores['C'] = self.ula.subtracao(valor1, valor2)
         print(f'SUB: Resultado da subtração: {registrador}, Z = {self.registradores['Z']}, C = {self.registradores['C']}')
             
@@ -309,7 +307,6 @@ class CPU:
         tipos de instruções que aceita:
         1. JUMP+ M(0x03)
         2. JUMP+ 0x03
-        3. JUMP+ M(A)
 
         Parâmetros:
         operandos = Lista com os operandos
